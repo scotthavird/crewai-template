@@ -1,97 +1,146 @@
-# crewai-template
-A template project for building AI agent workflows using CrewAI framework in a Docker container
+# CrewAI Template
 
-## About CrewAI
-CrewAI is a powerful framework for orchestrating role-playing AI agents. It enables you to create autonomous AI agents that can:
-- Work together in a hierarchical structure
-- Execute complex tasks through collaboration
-- Handle sequential and parallel workflows
-- Leverage tools and APIs effectively
-- Maintain context and memory throughout tasks
+A production-ready template for building AI crews using CrewAI. This template is designed to be easily deployable to AWS ECS/Fargate via ECR.
 
+## Features
 
+- 🚀 Production-ready structure
+- 🐳 Docker support out of the box
+- 📁 Organized project structure
+- 🔧 Easy configuration with YAML
+- 🧰 Custom tools support
+- 📚 Knowledge base integration
+- 🔄 Local development support
 
-## Pre-requisites
+## Project Structure
 
-### CrewAI
+```
+.
+├── src/
+│   └── crewai_template/        # Main package directory
+│       ├── __init__.py         # Package initialization
+│       ├── main.py             # Application entry point
+│       ├── crew.py             # Crew definitions
+│       ├── tools/              # Custom tools
+│       └── config/             # YAML configurations
+├── tests/                      # Test files
+├── knowledge/                  # Knowledge base files
+├── Dockerfile                  # Container definition
+├── docker-compose.yml          # Local development setup
+├── pyproject.toml             # Python package configuration
+└── .env.example               # Environment variables template
+```
 
-- [Install CrewAI](https://docs.crewai.com/installation)
-This is only needed for running `crewai create crew <project_name>` command
-- [Install Cursor](https://www.cursor.com/)
-Not required but recommended to use Cursor IDE
-- [Install Docker](https://www.docker.com/get-started/)
-- Python 3.9+
+### Why This Structure?
+
+This project follows modern Python packaging best practices with the `src/` layout pattern. Here's why:
+
+1. **Package Namespace Protection**:
+   - The `src/crewai_template/` structure creates a dedicated namespace for your package
+   - Prevents naming conflicts with other installed packages
+   - Makes imports explicit and intentional
+
+2. **Development Benefits**:
+   - Clear separation between package code and development files
+   - Ensures your development environment matches the installed environment
+   - Makes it easier to package and distribute your crew
+
+3. **Import Path Clarity**:
+   ```python
+   # Clear and explicit imports
+   from crewai_template.tools import custom_tool
+   from crewai_template.config import load_config
+   from crewai_template.crew import MyCrew
+   ```
+
+4. **Testing Reliability**:
+   - Tests are kept separate from package code
+   - Prevents accidental inclusion of test files in package
+   - Ensures tests run against the installed package
+
+5. **Production Readiness**:
+   - Structure supports both local development and containerized deployment
+   - Easy to package and deploy to AWS ECS/Fargate
+   - Maintains consistency across different environments
 
 ## Quick Start
 
-1. Clone this repository
-2. Run the Docker container:
-```sh
-docker-compose up --build
+1. Clone this template:
+   ```bash
+   git clone https://github.com/yourusername/crewai-template.git
+   cd crewai-template
+   ```
+
+2. Set up your environment:
+   ```bash
+   cp .env.example .env
+   # Edit .env with your configuration
+   ```
+
+3. Run locally:
+   ```bash
+   # Using Python directly
+   pip install ".[tools]"
+   python -m crewai_template.main
+
+   # Or using Docker
+   docker compose up
+   ```
+
+## Development
+
+1. Install development dependencies:
+   ```bash
+   pip install ".[tools]"
+   ```
+
+2. Run tests:
+   ```bash
+   python -m pytest
+   ```
+
+## Docker Support
+
+Build and run using Docker:
+```bash
+docker build -t crewai_template .
+docker run -it --env-file .env crewai_template
 ```
 
-## Cursor Rules
-Rules for AI
-While using cursor, we should be using https://docs.cursor.com/context/rules-for-ai.
-Learn how to customize AI behavior with global and project-specific rules
-
-## References
-- [CrewAI Documentation](https://docs.crewai.com/)
-- [CrewAI GitHub Repository](https://github.com/joaomdmoura/crewAI)
-- [CrewAI YouTube Channel](https://www.youtube.com/@crewai)
-- [CrewAI Discord Community](https://discord.gg/crewai)
-- [CrewAI Twitter](https://twitter.com/crewai)
-
-### Github Repos
-- [CrewAI GitHub Repository](https://github.com/joaomdmoura/crewAI)
-- [awesome-cursorrules](https://github.com/PatrickJS/awesome-cursorrules)
-
-### Youtube
-- [CrewAI YouTube Channel](https://www.youtube.com/@crewAIInc)
-
-I want to add this somewhere here. Pretty cool.
-```sh
-(base) ➜  crewai-template git:(adds-crewai) ✗ crewai create crew crewai_template
-Creating folder crewai_template...
-Cache expired or not found. Fetching provider data from the web...
-Downloading  [####################################]  309058/15326
-Select a provider to set up:
-1. openai
-2. anthropic
-3. gemini
-4. nvidia_nim
-5. groq
-6. ollama
-7. watson
-8. bedrock
-9. azure
-10. cerebras
-11. sambanova
-12. other
-q. Quit
-Enter the number of your choice or 'q' to quit: 1
-Select a model to use for Openai:
-1. gpt-4
-2. gpt-4o
-3. gpt-4o-mini
-4. o1-mini
-5. o1-preview
-q. Quit
-Enter the number of your choice or 'q' to quit: 3
-Enter your OPENAI API key (press Enter to skip): <OPENAI_API_KEY_HERE>
-API keys and model saved to .env file
-Selected model: gpt-4o-mini
-  - Created crewai_template/.gitignore
-  - Created crewai_template/pyproject.toml
-  - Created crewai_template/README.md
-  - Created crewai_template/knowledge/user_preference.txt
-  - Created crewai_template/src/crewai_template/__init__.py
-  - Created crewai_template/src/crewai_template/main.py
-  - Created crewai_template/src/crewai_template/crew.py
-  - Created crewai_template/src/crewai_template/tools/custom_tool.py
-  - Created crewai_template/src/crewai_template/tools/__init__.py
-  - Created crewai_template/src/crewai_template/config/agents.yaml
-  - Created crewai_template/src/crewai_template/config/tasks.yaml
-Crew crewai_template created successfully!
-(base) ➜  crewai-template git:(adds-crewai)
+Or use docker-compose for development:
+```bash
+docker compose up
 ```
+
+## Deployment
+
+This template is designed to be easily deployable to AWS ECS/Fargate via ECR. The repository structure and Docker configuration are already set up for cloud deployment.
+
+To prepare for AWS deployment:
+
+1. Build your image
+2. Tag it for your ECR repository
+3. Push to ECR
+4. Deploy to ECS/Fargate
+
+Detailed AWS deployment instructions will be provided in a separate guide.
+
+## Configuration
+
+1. Agent configurations are in `src/crewai_template/config/agents.yaml`
+2. Task configurations are in `src/crewai_template/config/tasks.yaml`
+3. Environment variables are managed through `.env`
+
+## Adding Custom Tools
+
+1. Create a new tool in `src/crewai_template/tools/`
+2. Register it in `src/crewai_template/tools/__init__.py`
+3. Use it in your crew configuration
+
+## Contributing
+
+Contributions are welcome! Please feel free to submit a Pull Request.
+
+## License
+
+This project is licensed under the MIT License - see the LICENSE file for details.
