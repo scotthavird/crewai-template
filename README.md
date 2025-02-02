@@ -5,12 +5,12 @@ A production-ready template for building AI crews using CrewAI. This template is
 ## Features
 
 - 🚀 Production-ready structure
-- 🐳 Docker support out of the box
+- 🐳 Docker support out of the box with optimized caching
 - 📁 Organized project structure
 - 🔧 Easy configuration with YAML
 - 🧰 Custom tools support
 - 📚 Knowledge base integration
-- 🔄 Local development support
+- 🔄 Live code reloading for development
 
 ## Project Structure
 
@@ -25,9 +25,9 @@ A production-ready template for building AI crews using CrewAI. This template is
 │       └── config/             # YAML configurations
 ├── tests/                      # Test files
 ├── knowledge/                  # Knowledge base files
-├── Dockerfile                  # Container definition
-├── docker-compose.yml          # Local development setup
-├── pyproject.toml             # Python package configuration
+├── Dockerfile                  # Optimized container definition
+├── docker-compose.yml          # Development setup with volume mounts
+├── pyproject.toml             # Python package & dependency configuration
 └── .env.example               # Environment variables template
 ```
 
@@ -74,16 +74,17 @@ This project follows modern Python packaging best practices with the `src/` layo
 2. Set up your environment:
    ```bash
    cp .env.example .env
-   # Edit .env with your OpenAI API key and other configurations
+   # Edit .env with your configuration:
+   # - OPENAI_API_KEY: Your OpenAI API key
+   # - MODEL: The OpenAI model to use (e.g., gpt-4-1106-preview)
    ```
 
 3. Run with Docker (recommended):
    ```bash
    # First time setup
    docker compose build
-   docker compose up
 
-   # Subsequent runs
+   # Start the application (use this for daily development)
    docker compose up
    ```
 
@@ -95,15 +96,18 @@ This project follows modern Python packaging best practices with the `src/` layo
 
 ## Development
 
-1. Install development dependencies:
-   ```bash
-   pip install ".[tools]"
-   ```
+The project is set up for efficient development with Docker:
 
-2. Run tests:
-   ```bash
-   python -m pytest
-   ```
+1. Source code changes in `src/` are automatically reflected
+2. Knowledge base changes in `knowledge/` are immediately available
+3. No rebuilds needed for code changes
+4. Dependencies are cached for faster builds
+
+For local Python development:
+```bash
+pip install ".[tools]"
+python -m crewai_template.main
+```
 
 ## Docker Support
 
@@ -170,9 +174,13 @@ Detailed AWS deployment instructions will be provided in a separate guide.
 
 ## Configuration
 
-1. Agent configurations are in `src/crewai_template/config/agents.yaml`
-2. Task configurations are in `src/crewai_template/config/tasks.yaml`
-3. Environment variables are managed through `.env`
+1. Environment Variables (`.env`):
+   - `OPENAI_API_KEY`: Your OpenAI API key
+   - `MODEL`: The OpenAI model to use (e.g., gpt-4-1106-preview)
+
+2. Application Configuration:
+   - Agent configurations in `src/crewai_template/config/agents.yaml`
+   - Task configurations in `src/crewai_template/config/tasks.yaml`
 
 ## Adding Custom Tools
 
