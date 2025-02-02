@@ -74,17 +74,23 @@ This project follows modern Python packaging best practices with the `src/` layo
 2. Set up your environment:
    ```bash
    cp .env.example .env
-   # Edit .env with your configuration
+   # Edit .env with your OpenAI API key and other configurations
    ```
 
-3. Run locally:
+3. Run with Docker (recommended):
    ```bash
-   # Using Python directly
+   # First time setup
+   docker compose build
+   docker compose up
+
+   # Subsequent runs
+   docker compose up
+   ```
+
+   Or run locally with Python:
+   ```bash
    pip install ".[tools]"
    python -m crewai_template.main
-
-   # Or using Docker
-   docker compose up
    ```
 
 ## Development
