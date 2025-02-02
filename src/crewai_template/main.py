@@ -1,10 +1,15 @@
 #!/usr/bin/env python
 import sys
 import warnings
+import logging
 
 from datetime import datetime
 
 from crewai_template.crew import CrewaiTemplate
+
+# Configure logging
+logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
+logger = logging.getLogger(__name__)
 
 warnings.filterwarnings("ignore", category=SyntaxWarning, module="pysbd")
 
@@ -17,14 +22,21 @@ def run():
     """
     Run the crew.
     """
+    logger.info("Starting CrewAI Template execution...")
     inputs = {
         'topic': 'AI LLMs',
         'current_year': str(datetime.now().year)
     }
-    
+    logger.info(f"Running with inputs: {inputs}")
+
     try:
-        CrewaiTemplate().crew().kickoff(inputs=inputs)
+        logger.info("Initializing crew...")
+        result = CrewaiTemplate().crew().kickoff(inputs=inputs)
+        logger.info("Crew execution completed successfully!")
+        logger.info(f"Result: {result}")
+        return result
     except Exception as e:
+        logger.error(f"An error occurred while running the crew: {e}")
         raise Exception(f"An error occurred while running the crew: {e}")
 
 
@@ -63,3 +75,7 @@ def test():
 
     except Exception as e:
         raise Exception(f"An error occurred while testing the crew: {e}")
+
+if __name__ == "__main__":
+    logger.info("Starting main execution...")
+    run()
