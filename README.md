@@ -9,8 +9,16 @@ CrewAI is a powerful framework for orchestrating role-playing AI agents. It enab
 - Leverage tools and APIs effectively
 - Maintain context and memory throughout tasks
 
+
+
 ## Pre-requisites
 
+### CrewAI
+
+- [Install CrewAI](https://docs.crewai.com/installation)
+This is only needed for running `crewai create crew <project_name>` command
+- [Install Cursor](https://www.cursor.com/)
+Not required but recommended to use Cursor IDE
 - [Install Docker](https://www.docker.com/get-started/)
 - Python 3.9+
 
@@ -22,22 +30,22 @@ CrewAI is a powerful framework for orchestrating role-playing AI agents. It enab
 docker-compose up --build
 ```
 
-## Project Structure
-```
-crewai-template/
-├── agents/         # Define your AI agents here
-├── tasks/          # Define tasks for your agents
-├── tools/          # Custom tools for agents
-└── workflows/      # Orchestrate your agent workflows
-```
+## Cursor Rules
+Rules for AI
+While using cursor, we should be using https://docs.cursor.com/context/rules-for-ai.
+Learn how to customize AI behavior with global and project-specific rules
 
-## Key Features
-- 🤖 Easy agent creation and configuration
-- 🔄 Flexible workflow management
-- 🛠️ Extensible tool integration
-- 🧠 Built-in memory and context management
-- 🐳 Dockerized environment for easy deployment
-
-## Resources
+## References
 - [CrewAI Documentation](https://docs.crewai.com/)
 - [CrewAI GitHub Repository](https://github.com/joaomdmoura/crewAI)
+- [CrewAI YouTube Channel](https://www.youtube.com/@crewai)
+- [CrewAI Discord Community](https://discord.gg/crewai)
+- [CrewAI Twitter](https://twitter.com/crewai)
+
+### Github Repos
+- [CrewAI GitHub Repository](https://github.com/joaomdmoura/crewAI)
+- [awesome-cursorrules](https://github.com/PatrickJS/awesome-cursorrules)
+
+### Youtube
+- [CrewAI YouTube Channel](https://www.youtube.com/@crewai)
+
