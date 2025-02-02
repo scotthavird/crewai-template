@@ -1,11 +1,15 @@
-version: "3.7"
 services:
   crew:
-    build: .
+    build:
+      context: .
+      dockerfile: Dockerfile
+      cache_from:
+        - crewai_template:0.1.0
     image: crewai_template:0.1.0
     volumes:
-      - .:/app
+      - ./src:/app/src
+      - ./knowledge:/app/knowledge
     env_file:
       - .env
     environment:
-      - PYTHONPATH=/app
+      - PYTHONPATH=/app/src

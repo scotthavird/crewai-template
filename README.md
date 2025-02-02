@@ -101,14 +101,51 @@ This project follows modern Python packaging best practices with the `src/` layo
 
 ## Docker Support
 
-Build and run using Docker:
+The project includes optimized Docker support with intelligent caching for faster development:
+
 ```bash
-docker build -t crewai_template .
-docker run -it --env-file .env crewai_template
+# First time setup or when dependencies change:
+docker compose build
+
+# For normal development (recommended for daily work):
+docker compose up
 ```
 
-Or use docker-compose for development:
+### Build Behavior
+
+- `docker compose up` - Starts the container without rebuilding (recommended)
+  - Use this for most development work
+  - Source code changes in src/ are reflected immediately via volume mounting
+  - Knowledge base changes are reflected immediately
+  - Much faster than using --build
+
+- `docker compose build` - Rebuilds the container (only needed when):
+  - Dockerfile changes
+  - pyproject.toml dependencies change
+  - You want to force a clean build
+
+❗ Avoid using `docker compose up --build` for regular development:
+- It forces unnecessary rebuilds
+- Slows down your development cycle
+- Ignores the caching optimizations we've set up
+
+### Docker Configuration
+
+The project uses an optimized Docker setup:
+- Efficient dependency caching through staged builds
+- Smart volume mounting for development:
+  - `./src:/app/src` - Live code updates
+  - `./knowledge:/app/knowledge` - Live knowledge base updates
+- Proper Python path configuration
+- Immediate code change reflection without rebuilds
+
+### Troubleshooting
+
+If you encounter module not found errors:
 ```bash
+# Clean up and rebuild from scratch
+docker compose down
+docker compose build --no-cache
 docker compose up
 ```
 
