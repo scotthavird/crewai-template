@@ -11,6 +11,9 @@ A production-ready template for building AI crews using CrewAI. This template is
 - 🧰 Custom tools support
 - 📚 Knowledge base integration
 - 🔄 Live code reloading for development
+- 🔒 Environment-based configuration
+- 🧪 Testing framework ready
+- 📝 Logging configuration included
 
 ## Project Structure
 
@@ -28,7 +31,8 @@ A production-ready template for building AI crews using CrewAI. This template is
 ├── Dockerfile                  # Optimized container definition
 ├── docker-compose.yml          # Development setup with volume mounts
 ├── pyproject.toml             # Python package & dependency configuration
-└── .env.example               # Environment variables template
+├── .env.example               # Environment variables template
+└── .dockerignore              # Docker build exclusions
 ```
 
 ### Why This Structure?
@@ -63,6 +67,13 @@ This project follows modern Python packaging best practices with the `src/` layo
    - Easy to package and deploy to AWS ECS/Fargate
    - Maintains consistency across different environments
 
+## Prerequisites
+
+- Docker and Docker Compose installed
+- Python 3.10 or higher for local development
+- OpenAI API key
+- Git (for version control)
+
 ## Quick Start
 
 1. Clone this template:
@@ -75,8 +86,12 @@ This project follows modern Python packaging best practices with the `src/` layo
    ```bash
    cp .env.example .env
    # Edit .env with your configuration:
+   # Required:
    # - OPENAI_API_KEY: Your OpenAI API key
    # - MODEL: The OpenAI model to use (e.g., gpt-4-1106-preview)
+   # Optional:
+   # - LOG_LEVEL: Logging level (default: INFO)
+   # - PYTHONPATH: Python path (default: /app/src)
    ```
 
 3. Run with Docker (recommended):
@@ -159,6 +174,55 @@ docker compose build --no-cache
 docker compose up
 ```
 
+## Best Practices
+
+### Development Workflow
+1. Always use version control
+2. Create feature branches for changes
+3. Write tests for new features
+4. Update documentation as you code
+
+### Docker Best Practices
+1. Use specific version tags for base images
+2. Keep images small and efficient
+3. Use multi-stage builds for production
+4. Never store secrets in images
+
+### Security
+1. Never commit .env files
+2. Use environment variables for secrets
+3. Keep dependencies updated
+4. Review Docker security best practices
+
+### Testing
+The project includes both unit tests and integration tests:
+
+```bash
+# Run all tests
+python -m pytest
+
+# Run only unit tests (skip integration tests)
+python -m pytest -m "not integration"
+
+# Run tests with coverage report
+python -m pytest --cov=src/crewai_template
+
+# Run tests in Docker
+docker compose run --rm crew python -m pytest
+```
+
+Test Structure:
+- `tests/test_crew.py` - Core crew functionality tests
+- `tests/conftest.py` - Shared pytest fixtures
+- Integration tests are marked with `@pytest.mark.integration`
+
+The tests demonstrate:
+1. Mocking external dependencies (OpenAI)
+2. Proper test isolation
+3. Environment variable handling
+4. Input validation
+5. Integration test patterns
+
 ## Deployment
 
 This template is designed to be easily deployable to AWS ECS/Fargate via ECR. The repository structure and Docker configuration are already set up for cloud deployment.
@@ -175,8 +239,13 @@ Detailed AWS deployment instructions will be provided in a separate guide.
 ## Configuration
 
 1. Environment Variables (`.env`):
+   Required:
    - `OPENAI_API_KEY`: Your OpenAI API key
    - `MODEL`: The OpenAI model to use (e.g., gpt-4-1106-preview)
+
+   Optional:
+   - `LOG_LEVEL`: Logging level (default: INFO)
+   - `PYTHONPATH`: Python path (default: /app/src)
 
 2. Application Configuration:
    - Agent configurations in `src/crewai_template/config/agents.yaml`

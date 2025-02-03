@@ -1,0 +1,7 @@
+.env
+.git
+.gitignore
+.vscode
+.venv
+.pytest_cache
+.cursor
