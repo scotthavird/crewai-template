@@ -1,266 +1,99 @@
 # CrewAI Template
 
-A production-ready template for building AI crews using CrewAI. This template is designed to be easily deployable to AWS ECS/Fargate via ECR.
-
-## Features
-
-- 🚀 Production-ready structure
-- 🐳 Docker support out of the box with optimized caching
-- 📁 Organized project structure
-- 🔧 Easy configuration with YAML
-- 🧰 Custom tools support
-- 📚 Knowledge base integration
-- 🔄 Live code reloading for development
-- 🔒 Environment-based configuration
-- 🧪 Testing framework ready
-- 📝 Logging configuration included
+A powerful multi-agent AI system template powered by [crewAI](https://crewai.com), designed for building collaborative AI agent systems.
 
 ## Project Structure
-
 ```
 .
 ├── src/
-│   └── crewai_template/        # Main package directory
-│       ├── __init__.py         # Package initialization
-│       ├── main.py             # Application entry point
-│       ├── crew.py             # Crew definitions
-│       ├── tools/              # Custom tools
-│       └── config/             # YAML configurations
-├── tests/                      # Test files
-├── knowledge/                  # Knowledge base files
-├── Dockerfile                  # Optimized container definition
-├── docker-compose.yml          # Development setup with volume mounts
-├── pyproject.toml             # Python package & dependency configuration
-├── .env.example               # Environment variables template
-└── .dockerignore              # Docker build exclusions
+│   └── crewai_template/           # Main package
+│       ├── main.py                # Entry point
+│       ├── crew.py                # Crew definitions
+│       ├── tools/                 # Custom tools
+│       └── config/                # YAML configurations
+├── tests/                         # Test files
+├── knowledge/                     # Knowledge base
+└── docker/                        # Container files
 ```
 
-### Why This Structure?
-
-This project follows modern Python packaging best practices with the `src/` layout pattern. Here's why:
-
-1. **Package Namespace Protection**:
-   - The `src/crewai_template/` structure creates a dedicated namespace for your package
-   - Prevents naming conflicts with other installed packages
-   - Makes imports explicit and intentional
-
-2. **Development Benefits**:
-   - Clear separation between package code and development files
-   - Ensures your development environment matches the installed environment
-   - Makes it easier to package and distribute your crew
-
-3. **Import Path Clarity**:
-   ```python
-   # Clear and explicit imports
-   from crewai_template.tools import custom_tool
-   from crewai_template.config import load_config
-   from crewai_template.crew import MyCrew
-   ```
-
-4. **Testing Reliability**:
-   - Tests are kept separate from package code
-   - Prevents accidental inclusion of test files in package
-   - Ensures tests run against the installed package
-
-5. **Production Readiness**:
-   - Structure supports both local development and containerized deployment
-   - Easy to package and deploy to AWS ECS/Fargate
-   - Maintains consistency across different environments
-
-## Prerequisites
-
-- Docker and Docker Compose installed
-- Python 3.10 or higher for local development
-- OpenAI API key
-- Git (for version control)
+## Requirements
+- Python >=3.10 <3.13
+- [UV](https://docs.astral.sh/uv/) for dependency management
 
 ## Quick Start
 
-1. Clone this template:
-   ```bash
-   git clone https://github.com/yourusername/crewai-template.git
-   cd crewai-template
-   ```
+1. Install UV:
+```bash
+pip install uv
+```
 
-2. Set up your environment:
-   ```bash
-   cp .env.example .env
-   # Edit .env with your configuration:
-   # Required:
-   # - OPENAI_API_KEY: Your OpenAI API key
-   # - MODEL: The OpenAI model to use (e.g., gpt-4-1106-preview)
-   # Optional:
-   # - LOG_LEVEL: Logging level (default: INFO)
-   # - PYTHONPATH: Python path (default: /app/src)
-   ```
+2. Install dependencies:
+```bash
+crewai install
+```
 
-3. Run with Docker (recommended):
-   ```bash
-   # First time setup
-   docker compose build
+3. Configure environment:
+- Copy `.env.example` to `.env`
+- Add your `OPENAI_API_KEY` to `.env`
 
-   # Start the application (use this for daily development)
-   docker compose up
-   ```
-
-   Or run locally with Python:
-   ```bash
-   pip install ".[tools]"
-   python -m crewai_template.main
-   ```
+4. Run the crew:
+```bash
+crewai run
+```
 
 ## Development
 
-The project is set up for efficient development with Docker:
-
-1. Source code changes in `src/` are automatically reflected
-2. Knowledge base changes in `knowledge/` are immediately available
-3. No rebuilds needed for code changes
-4. Dependencies are cached for faster builds
-
-For local Python development:
+### Local Setup
 ```bash
-pip install ".[tools]"
-python -m crewai_template.main
+python -m venv venv
+source venv/bin/activate  # or `venv\Scripts\activate` on Windows
+pip install -e ".[tools]"
 ```
 
-## Docker Support
-
-The project includes optimized Docker support with intelligent caching for faster development:
-
+### Docker Setup
 ```bash
-# First time setup or when dependencies change:
-docker compose build
+# Build and start the containers
+docker compose up --build
 
-# For normal development (recommended for daily work):
-docker compose up
-```
+# Run in detached mode
+docker compose up -d
 
-### Build Behavior
+# View logs
+docker compose logs -f
 
-- `docker compose up` - Starts the container without rebuilding (recommended)
-  - Use this for most development work
-  - Source code changes in src/ are reflected immediately via volume mounting
-  - Knowledge base changes are reflected immediately
-  - Much faster than using --build
-
-- `docker compose build` - Rebuilds the container (only needed when):
-  - Dockerfile changes
-  - pyproject.toml dependencies change
-  - You want to force a clean build
-
-❗ Avoid using `docker compose up --build` for regular development:
-- It forces unnecessary rebuilds
-- Slows down your development cycle
-- Ignores the caching optimizations we've set up
-
-### Docker Configuration
-
-The project uses an optimized Docker setup:
-- Efficient dependency caching through staged builds
-- Smart volume mounting for development:
-  - `./src:/app/src` - Live code updates
-  - `./knowledge:/app/knowledge` - Live knowledge base updates
-- Proper Python path configuration
-- Immediate code change reflection without rebuilds
-
-### Troubleshooting
-
-If you encounter module not found errors:
-```bash
-# Clean up and rebuild from scratch
+# Stop containers
 docker compose down
-docker compose build --no-cache
-docker compose up
 ```
+
+The Docker setup includes:
+- Hot reload for development
+- All required dependencies pre-installed
+- Isolated environment for consistent development
+
+### Customization
+- Modify `config/agents.yaml` for agent definitions
+- Modify `config/tasks.yaml` for task definitions
+- Modify `crew.py` for custom logic and tools
+- Modify `main.py` for custom inputs
+
+### Adding New Features
+
+#### New Tool
+1. Create tool in `src/crewai_template/tools/`
+2. Register in `tools/__init__.py`
+
+#### New Agent
+1. Add configuration in `config/agents.yaml`
+2. Update `crew.py` accordingly
 
 ## Best Practices
+- Keep sensitive data in `.env`
+- Write tests for new tools
+- Follow PEP 8 and use type hints
+- Document new features
 
-### Development Workflow
-1. Always use version control
-2. Create feature branches for changes
-3. Write tests for new features
-4. Update documentation as you code
-
-### Docker Best Practices
-1. Use specific version tags for base images
-2. Keep images small and efficient
-3. Use multi-stage builds for production
-4. Never store secrets in images
-
-### Security
-1. Never commit .env files
-2. Use environment variables for secrets
-3. Keep dependencies updated
-4. Review Docker security best practices
-
-### Testing
-The project includes both unit tests and integration tests:
-
-```bash
-# Run all tests
-python -m pytest
-
-# Run only unit tests (skip integration tests)
-python -m pytest -m "not integration"
-
-# Run tests with coverage report
-python -m pytest --cov=src/crewai_template
-
-# Run tests in Docker
-docker compose run --rm crew python -m pytest
-```
-
-Test Structure:
-- `tests/test_crew.py` - Core crew functionality tests
-- `tests/conftest.py` - Shared pytest fixtures
-- Integration tests are marked with `@pytest.mark.integration`
-
-The tests demonstrate:
-1. Mocking external dependencies (OpenAI)
-2. Proper test isolation
-3. Environment variable handling
-4. Input validation
-5. Integration test patterns
-
-## Deployment
-
-This template is designed to be easily deployable to AWS ECS/Fargate via ECR. The repository structure and Docker configuration are already set up for cloud deployment.
-
-To prepare for AWS deployment:
-
-1. Build your image
-2. Tag it for your ECR repository
-3. Push to ECR
-4. Deploy to ECS/Fargate
-
-Detailed AWS deployment instructions will be provided in a separate guide.
-
-## Configuration
-
-1. Environment Variables (`.env`):
-   Required:
-   - `OPENAI_API_KEY`: Your OpenAI API key
-   - `MODEL`: The OpenAI model to use (e.g., gpt-4-1106-preview)
-
-   Optional:
-   - `LOG_LEVEL`: Logging level (default: INFO)
-   - `PYTHONPATH`: Python path (default: /app/src)
-
-2. Application Configuration:
-   - Agent configurations in `src/crewai_template/config/agents.yaml`
-   - Task configurations in `src/crewai_template/config/tasks.yaml`
-
-## Adding Custom Tools
-
-1. Create a new tool in `src/crewai_template/tools/`
-2. Register it in `src/crewai_template/tools/__init__.py`
-3. Use it in your crew configuration
-
-## Contributing
-
-Contributions are welcome! Please feel free to submit a Pull Request.
-
-## License
-
-This project is licensed under the MIT License - see the LICENSE file for details.
+## Support
+- [Documentation](https://docs.crewai.com)
+- [GitHub Repository](https://github.com/joaomdmoura/crewai)
+- [Discord Community](https://discord.com/invite/X4JWnZnxPb)
+- [Documentation Chat](https://chatg.pt/DWjSBZn)
