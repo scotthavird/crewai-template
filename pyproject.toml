@@ -8,13 +8,6 @@ dependencies = [
     "crewai[tools]>=0.100.1,<1.0.0"
 ]
 
-[project.optional-dependencies]
-dev = [
-    "pytest>=7.4.0",
-    "pytest-cov>=4.1.0",
-    "pytest-mock>=3.11.1"
-]
-
 [project.scripts]
 crewai_template = "crewai_template.main:run"
 run_crew = "crewai_template.main:run"

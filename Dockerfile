@@ -11,8 +11,7 @@ ENV PYTHONPATH=/app/src:$PYTHONPATH \
     PYTHONUNBUFFERED=1
 
 # Install dependencies
-RUN pip install --no-cache-dir hatchling && \
-    pip install --no-cache-dir -e .
+RUN pip install --no-cache-dir hatchling -e .
 
 # Copy the rest of the project files
 COPY . .

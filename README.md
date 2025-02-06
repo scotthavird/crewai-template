@@ -6,15 +6,28 @@ A powerful multi-agent AI system template powered by [crewAI](https://crewai.com
 
 1. Click "Use this template" button at the top of this repository
 2. Clone your new repository
-3. Rename the template to your project name:
+3. Run the setup script with your project name:
    ```bash
-   # Replace 'your_project_name' with your desired name
-   find . -type f -not -path '*/\.*' -exec sed -i '' 's/crewai_template/your_project_name/g' {} +
-   find . -type f -not -path '*/\.*' -exec sed -i '' 's/CrewaiTemplate/YourProjectName/g' {} +
-   mv src/crewai_template src/your_project_name
+   ./setup_project.sh your_project_name
    ```
-4. Update project details in `pyproject.toml`
-5. Update this README.md with your project's details
+
+   For example:
+   ```bash
+   ./setup_project.sh my_awesome_project
+   ```
+
+   The setup script will:
+   - Rename all necessary files and directories
+   - Update all references in the codebase
+   - Set up basic project metadata
+   - Guide you through:
+     - Updating project details interactively
+     - Editing the README.md file
+     - Initializing a git repository
+     - Setting up environment (.env) file
+     - Configuring OpenAI API key
+     - Starting Docker containers
+     - Setting up next steps for development
 
 ## Project Structure
 ```
@@ -32,32 +45,7 @@ A powerful multi-agent AI system template powered by [crewAI](https://crewai.com
 └── docker-compose.yml         # Docker compose configuration
 ```
 
-## Requirements
-- Python >=3.10 <3.13
-- [UV](https://docs.astral.sh/uv/) for dependency management
-
 ## Quick Start
-
-1. Install UV:
-```bash
-pip install uv
-```
-
-2. Install dependencies:
-```bash
-uv pip install -e ".[dev]"
-```
-
-3. Configure environment:
-- Copy `.env.example` to `.env`
-- Add your `OPENAI_API_KEY` to `.env`
-
-4. Run the crew:
-```bash
-python -m your_project_name.main
-```
-
-## Development
 
 ### Docker Setup
 ```bash
@@ -75,22 +63,15 @@ docker compose down
 ```
 
 The Docker setup includes:
-- Hot reload for development
 - All required dependencies pre-installed
 - Isolated environment for consistent development
 
 ### Customization
 1. Modify `config/agents.yaml` to define your agents
 2. Modify `config/tasks.yaml` to define your tasks
-3. Create new tools in `src/your_project_name/tools/`
+3. Create new tools in `src/crewai_template/tools/`
 4. Update crew behavior in `crew.py`
 5. Modify main execution in `main.py`
-
-## Best Practices
-- Keep sensitive data in `.env`
-- Write tests for new tools
-- Follow PEP 8 and use type hints
-- Document new features
 
 ## Support
 - [CrewAI Documentation](https://docs.crewai.com)
