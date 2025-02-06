@@ -2,18 +2,34 @@
 
 A powerful multi-agent AI system template powered by [crewAI](https://crewai.com), designed for building collaborative AI agent systems.
 
+## Using This Template
+
+1. Click "Use this template" button at the top of this repository
+2. Clone your new repository
+3. Rename the template to your project name:
+   ```bash
+   # Replace 'your_project_name' with your desired name
+   find . -type f -not -path '*/\.*' -exec sed -i '' 's/crewai_template/your_project_name/g' {} +
+   find . -type f -not -path '*/\.*' -exec sed -i '' 's/CrewaiTemplate/YourProjectName/g' {} +
+   mv src/crewai_template src/your_project_name
+   ```
+4. Update project details in `pyproject.toml`
+5. Update this README.md with your project's details
+
 ## Project Structure
 ```
 .
 ├── src/
-│   └── crewai_template/           # Main package
-│       ├── main.py                # Entry point
-│       ├── crew.py                # Crew definitions
-│       ├── tools/                 # Custom tools
-│       └── config/                # YAML configurations
-├── tests/                         # Test files
-├── knowledge/                     # Knowledge base
-└── docker/                        # Container files
+│   └── your_project_name/        # Main package
+│       ├── main.py              # Entry point
+│       ├── crew.py             # Crew definitions
+│       ├── config/             # Configuration files
+│       │   ├── agents.yaml     # Agent definitions
+│       │   └── tasks.yaml      # Task definitions
+│       └── tools/              # Custom tools
+├── tests/                      # Test files
+├── Dockerfile                  # Docker container definition
+└── docker-compose.yml         # Docker compose configuration
 ```
 
 ## Requirements
@@ -29,7 +45,7 @@ pip install uv
 
 2. Install dependencies:
 ```bash
-crewai install
+uv pip install -e ".[dev]"
 ```
 
 3. Configure environment:
@@ -38,17 +54,10 @@ crewai install
 
 4. Run the crew:
 ```bash
-crewai run
+python -m your_project_name.main
 ```
 
 ## Development
-
-### Local Setup
-```bash
-python -m venv venv
-source venv/bin/activate  # or `venv\Scripts\activate` on Windows
-pip install -e ".[tools]"
-```
 
 ### Docker Setup
 ```bash
@@ -71,20 +80,11 @@ The Docker setup includes:
 - Isolated environment for consistent development
 
 ### Customization
-- Modify `config/agents.yaml` for agent definitions
-- Modify `config/tasks.yaml` for task definitions
-- Modify `crew.py` for custom logic and tools
-- Modify `main.py` for custom inputs
-
-### Adding New Features
-
-#### New Tool
-1. Create tool in `src/crewai_template/tools/`
-2. Register in `tools/__init__.py`
-
-#### New Agent
-1. Add configuration in `config/agents.yaml`
-2. Update `crew.py` accordingly
+1. Modify `config/agents.yaml` to define your agents
+2. Modify `config/tasks.yaml` to define your tasks
+3. Create new tools in `src/your_project_name/tools/`
+4. Update crew behavior in `crew.py`
+5. Modify main execution in `main.py`
 
 ## Best Practices
 - Keep sensitive data in `.env`
@@ -93,7 +93,6 @@ The Docker setup includes:
 - Document new features
 
 ## Support
-- [Documentation](https://docs.crewai.com)
-- [GitHub Repository](https://github.com/joaomdmoura/crewai)
+- [CrewAI Documentation](https://docs.crewai.com)
+- [CrewAI GitHub](https://github.com/joaomdmoura/crewai)
 - [Discord Community](https://discord.com/invite/X4JWnZnxPb)
-- [Documentation Chat](https://chatg.pt/DWjSBZn)

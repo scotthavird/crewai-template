@@ -8,7 +8,6 @@ services:
     image: crewai_template:0.1.0
     volumes:
       - ./src:/app/src
-      - ./knowledge:/app/knowledge
     env_file:
       - .env
     environment:

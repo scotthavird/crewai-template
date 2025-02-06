@@ -6,3 +6,5 @@
 .pytest_cache
 .cursor
 .env.example
+.venv/
+uv.lock
