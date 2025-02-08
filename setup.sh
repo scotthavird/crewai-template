@@ -19,7 +19,9 @@ echo "🚀 Setting up your project: $PROJECT_NAME"
 # Rename files and directories
 echo "📁 Renaming directories..."
 if [ -d "src/crewai_template" ]; then
-    mv src/crewai_template "src/$PROJECT_NAME"
+    mkdir -p "src/$PROJECT_NAME"
+    cp -r src/crewai_template/* "src/$PROJECT_NAME/"
+    rm -r src/crewai_template
 fi
 
 # Replace occurrences in files
