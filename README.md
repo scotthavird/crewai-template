@@ -49,7 +49,7 @@ A powerful multi-agent AI system template powered by [crewAI](https://crewai.com
 
 ### Docker Setup
 ```bash
-# Build and start the containers
+# First time setup or after dependency changes
 docker compose up --build
 
 # Run in detached mode
@@ -61,6 +61,37 @@ docker compose logs -f
 # Stop containers
 docker compose down
 ```
+
+### Development Workflow
+
+When making changes to your code:
+
+1. **For source code changes** (files in `src/`):
+   ```bash
+   # Just restart the container - it uses a volume mount
+   docker compose up
+   ```
+
+2. **For dependency changes** (pyproject.toml):
+   ```bash
+   # Rebuild with new dependencies
+   docker compose build
+   docker compose up
+   ```
+
+3. **For Dockerfile changes**:
+   ```bash
+   # Force a clean rebuild
+   docker compose build --no-cache
+   docker compose up
+   ```
+
+The build process is optimized for development:
+- Source code changes are instantly reflected via volume mounting
+- Dependencies are cached using a persistent pip cache volume
+- Docker layer caching ensures quick rebuilds
+- First build will take longer (~75s) to install dependencies
+- Subsequent builds are much faster (<1s) when only code changes
 
 The Docker setup includes:
 - All required dependencies pre-installed

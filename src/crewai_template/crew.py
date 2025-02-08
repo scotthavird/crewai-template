@@ -42,9 +42,15 @@ class CrewaiTemplate():
 
 	@task
 	def reporting_task(self) -> Task:
+		def save_report(output):
+			with open('/app/report.md', 'w') as f:
+				f.write(output.output)
+			return output
+
 		return Task(
 			config=self.tasks_config['reporting_task'],
-			output_file='report.md'
+			context_from=['research_task'],
+			callback=save_report
 		)
 
 	@crew

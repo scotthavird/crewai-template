@@ -76,25 +76,6 @@ if [[ "$response" =~ ^([yY][eE][sS]|[yY])+$ ]]; then
     fi
 fi
 
-# Git initialization
-echo
-echo "🔄 Would you like to initialize a git repository? (y/N)"
-read -r response
-if [[ "$response" =~ ^([yY][eE][sS]|[yY])+$ ]]; then
-    if ! command -v git >/dev/null 2>&1; then
-        echo "❌ Git is not installed. Please install git first."
-    else
-        if [ ! -d ".git" ]; then
-            git init
-            git add .
-            git commit -m "Initial commit: Project setup from CrewAI Template"
-            echo "✅ Git repository initialized and initial commit created!"
-        else
-            echo "⚠️ Git repository already exists!"
-        fi
-    fi
-fi
-
 echo
 echo "🎉 Setup complete! Your project is ready to go!"
 echo
