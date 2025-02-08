@@ -24,10 +24,10 @@ fi
 
 # Replace occurrences in files
 echo "📝 Updating file contents..."
-find . -type f -not -path '*/\.*' -not -path '*/venv/*' -not -name 'setup_project.sh' -exec sed -i.bak "s/crew_ai_template/$PROJECT_NAME/g" {} +
-find . -type f -not -path '*/\.*' -not -path '*/venv/*' -not -name 'setup_project.sh' -exec sed -i.bak "s/CrewAiTemplate/$PROJECT_NAME_PASCAL/g" {} +
-find . -type f -not -path '*/\.*' -not -path '*/venv/*' -not -name 'setup_project.sh' -exec sed -i.bak "s/CrewAiTemplate/$PROJECT_NAME_PASCAL/g" {} +
-find . -type f -not -path '*/\.*' -not -path '*/venv/*' -not -name 'setup_project.sh' -exec sed -i.bak "s/CrewAiTemplate/$PROJECT_NAME_PASCAL/g" {} +
+find . -type f -not -path '*/\.*' -not -path '*/venv/*' -not -name 'setup.sh' -exec sed -i.bak "s/crew_ai_template/$PROJECT_NAME/g" {} +
+find . -type f -not -path '*/\.*' -not -path '*/venv/*' -not -name 'setup.sh' -exec sed -i.bak "s/CrewAiTemplate/$PROJECT_NAME_PASCAL/g" {} +
+find . -type f -not -path '*/\.*' -not -path '*/venv/*' -not -name 'setup.sh' -exec sed -i.bak "s/CrewAiTemplate/$PROJECT_NAME_PASCAL/g" {} +
+find . -type f -not -path '*/\.*' -not -path '*/venv/*' -not -name 'setup.sh' -exec sed -i.bak "s/CrewAiTemplate/$PROJECT_NAME_PASCAL/g" {} +
 
 # Update README.md with project details
 echo "📝 Updating README.md..."
