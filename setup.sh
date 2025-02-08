@@ -18,16 +18,14 @@ echo "🚀 Setting up your project: $PROJECT_NAME"
 
 # Rename files and directories
 echo "📁 Renaming directories..."
-if [ -d "src/crew_ai_template" ]; then
-    mv src/crew_ai_template "src/$PROJECT_NAME"
+if [ -d "src/crewai_template" ]; then
+    mv src/crewai_template "src/$PROJECT_NAME"
 fi
 
 # Replace occurrences in files
 echo "📝 Updating file contents..."
-find . -type f -not -path '*/\.*' -not -path '*/venv/*' -not -name 'setup.sh' -exec sed -i.bak "s/crew_ai_template/$PROJECT_NAME/g" {} +
-find . -type f -not -path '*/\.*' -not -path '*/venv/*' -not -name 'setup.sh' -exec sed -i.bak "s/CrewAiTemplate/$PROJECT_NAME_PASCAL/g" {} +
-find . -type f -not -path '*/\.*' -not -path '*/venv/*' -not -name 'setup.sh' -exec sed -i.bak "s/CrewAiTemplate/$PROJECT_NAME_PASCAL/g" {} +
-find . -type f -not -path '*/\.*' -not -path '*/venv/*' -not -name 'setup.sh' -exec sed -i.bak "s/CrewAiTemplate/$PROJECT_NAME_PASCAL/g" {} +
+find . -type f -not -path '*/\.*' -not -path '*/venv/*' -not -name 'setup.sh' -exec sed -i.bak "s/crewai_template/$PROJECT_NAME/g" {} +
+find . -type f -not -path '*/\.*' -not -path '*/venv/*' -not -name 'setup.sh' -exec sed -i.bak "s/CrewaiTemplate/$PROJECT_NAME_PASCAL/g" {} +
 
 # Update README.md with project details
 echo "📝 Updating README.md..."
