@@ -31,7 +31,7 @@ find . -type f -not -path '*/\.*' -not -path '*/venv/*' -not -name 'setup.sh' -e
 echo "📝 Updating README.md..."
 if [ -f "README.md" ]; then
     # Update title only
-    sed -i.bak "s/# CrewAiTemplate/# $PROJECT_NAME_PASCAL/" README.md
+    sed -i.bak "s/# CrewAI Template/# $PROJECT_NAME_PASCAL/" README.md
 
     # If project description was provided, update it in README
     if [ ! -z "$PROJECT_DESCRIPTION" ]; then
