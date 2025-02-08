@@ -1,7 +1,10 @@
-version: "3.7"
 services:
-  operator:
+  crew:
     build: .
-    image: python_template:0.1.0
-    volumes: 
-      - ${PWD}:/usr/app/src/
+    image: crewai_template:0.1.0
+    volumes:
+      - .:/app
+    env_file:
+      - .env
+    environment:
+      - PYTHONPATH=/app

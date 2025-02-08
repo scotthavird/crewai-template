@@ -1,0 +1,29 @@
+[project]
+name = "crewai_template"
+version = "0.1.0"
+description = "crewai_template using crewAI"
+authors = [{ name = "Your Name", email = "you@example.com" }]
+requires-python = ">=3.10,<3.13"
+dependencies = [
+    "crewai[tools]>=0.100.1,<1.0.0"
+]
+
+[project.scripts]
+crewai_template = "crewai_template.main:run"
+run_crew = "crewai_template.main:run"
+train = "crewai_template.main:train"
+replay = "crewai_template.main:replay"
+test = "crewai_template.main:test"
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.crewai]
+type = "crew"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/crewai_template"]
+
+[tool.hatch.build.targets.sdist]
+packages = ["src/crewai_template"]
