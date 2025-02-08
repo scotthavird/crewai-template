@@ -23,7 +23,7 @@ def run():
     """
     logger.info("Starting CrewAI Template execution...")
     inputs = {
-        'topic': 'CrewAI',
+        'topic': 'OpenCV',
         'current_year': str(datetime.now().year)
     }
     logger.info(f"Running with inputs: {inputs}")
