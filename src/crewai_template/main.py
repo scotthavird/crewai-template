@@ -1,8 +1,7 @@
 #!/usr/bin/env python
+import logging
 import sys
 import warnings
-import logging
-
 from datetime import datetime
 
 from crewai_template.crew import CrewaiTemplate
@@ -24,7 +23,7 @@ def run():
     """
     logger.info("Starting CrewAI Template execution...")
     inputs = {
-        'topic': 'AI LLMs',
+        'topic': 'CrewAI',
         'current_year': str(datetime.now().year)
     }
     logger.info(f"Running with inputs: {inputs}")
