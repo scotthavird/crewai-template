@@ -1,5 +1,6 @@
 services:
   crew:
+    container_name: hello_world-crew
     build: .
     image: crewai_template:0.1.0
     volumes:
