@@ -6,7 +6,7 @@ A production-ready template for building AI crews using CrewAI.
 
 1. Clone the template:
 ```bash
-git clone https://github.com/yourusername/crewai-template.git
+git clone https://github.com/scotthavird/crewai-template
 cd crewai-template
 ```
 
