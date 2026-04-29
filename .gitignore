@@ -1,3 +1,24 @@
 .env
 __pycache__/
 .DS_Store
+
+# Editor / agent state
+.claude/
+.cursor/
+.vscode/
+
+# Runtime artifacts
+db/
+report.md
+trained.pkl
+*.bak
+
+# Python build / cache
+build/
+dist/
+*.egg-info/
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+.coverage
+htmlcov/
