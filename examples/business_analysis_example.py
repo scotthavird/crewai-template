@@ -3,14 +3,14 @@
 Business Analysis Example - CrewAI Template
 ============================================
 
-This example demonstrates how to configure CrewAI for business analysis tasks.
-The crew will research market trends, analyze competition, and create strategic recommendations.
+Demonstrates passing a richer input dict to the same `CrewaiTemplate` crew.
+The default YAML configs only interpolate `{topic}` and `{current_year}`, so
+the extra keys (industry, region, timeframe, focus_areas, …) are forwarded
+to the crew but ignored by the prompt templates. They're included here as a
+template for projects that extend the YAML to reference them.
 
 Usage (Docker):
     docker compose run --rm crew python examples/business_analysis_example.py
-
-Or direct execution:
-    python examples/business_analysis_example.py
 """
 
 import os
