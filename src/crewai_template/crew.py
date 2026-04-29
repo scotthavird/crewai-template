@@ -1,62 +1,151 @@
-from crewai import Agent, Crew, Process, Task
-from crewai.project import CrewBase, agent, crew, task
+"""The crew. Three agents collaborate to research, analyse, and report on a topic.
 
-# If you want to run a snippet of code before or after the crew starts, 
-# you can use the @before_kickoff and @after_kickoff decorators
-# https://docs.crewai.com/concepts/crews#example-crew-class-with-decorators
+Showcased patterns (top-to-bottom):
+- @CrewBase + YAML config
+- @before_kickoff input transformation
+- Per-agent LLM override (Anthropic on the analyst)
+- BaseTool subclass (WebScraperTool, DataAnalyzerTool) and @tool decorator (word_count)
+- SerperDevTool web search wired into the researcher
+- async_execution=True on the research task (intra-crew parallelism)
+- output_pydantic structured output on the analysis task
+- Function guardrail with retries on the report task
+- Crew-level memory + knowledge_sources with explicit embedder
+- Commented MCP block at the bottom
+"""
+from __future__ import annotations
+
+import os
+import uuid
+from datetime import datetime
+
+from crewai import LLM, Agent, Crew, Process, Task
+from crewai.knowledge.source.text_file_knowledge_source import TextFileKnowledgeSource
+from crewai.project import CrewBase, after_kickoff, agent, before_kickoff, crew, task
+from crewai_tools import SerperDevTool
+
+from crewai_template.schemas import AnalysisReport, ensure_markdown_report
+from crewai_template.tools import (
+    DataAnalyzerTool,
+    WebScraperTool,
+    word_count,
+)
+
 
 @CrewBase
-class CrewaiTemplate():
-	"""CrewaiTemplate crew"""
+class CrewaiTemplate:
+    """Research → Analysis → Report crew."""
 
-	# Learn more about YAML configuration files here:
-	# Agents: https://docs.crewai.com/concepts/agents#yaml-configuration-recommended
-	# Tasks: https://docs.crewai.com/concepts/tasks#yaml-configuration-recommended
-	agents_config = 'config/agents.yaml'
-	tasks_config = 'config/tasks.yaml'
+    agents_config = "config/agents.yaml"
+    tasks_config = "config/tasks.yaml"
 
-	# If you would like to add tools to your agents, you can learn more about it here:
-	# https://docs.crewai.com/concepts/agents#agent-tools
-	@agent
-	def researcher(self) -> Agent:
-		return Agent(
-			config=self.agents_config['researcher'],
-			verbose=True
-		)
+    # ── lifecycle ───────────────────────────────────────────────────────
+    @before_kickoff
+    def _prep(self, inputs: dict) -> dict:
+        inputs.setdefault("current_year", str(datetime.now().year))
+        inputs.setdefault("run_id", uuid.uuid4().hex[:8])
+        return inputs
 
-	@agent
-	def reporting_analyst(self) -> Agent:
-		return Agent(
-			config=self.agents_config['reporting_analyst'],
-			verbose=True
-		)
+    @after_kickoff
+    def _summarise(self, output):
+        print(f"\n— crew finished — wrote {len(getattr(output, 'raw', '') or '')} chars to report.md\n")
+        return output
 
-	# To learn more about structured task outputs, 
-	# task dependencies, and task callbacks, check out the documentation:
-	# https://docs.crewai.com/concepts/tasks#overview-of-a-task
-	@task
-	def research_task(self) -> Task:
-		return Task(
-			config=self.tasks_config['research_task'],
-		)
+    # ── agents ──────────────────────────────────────────────────────────
+    @agent
+    def researcher(self) -> Agent:
+        return Agent(
+            config=self.agents_config["researcher"],  # type: ignore[index]
+            tools=[SerperDevTool(), WebScraperTool(), word_count],
+            verbose=True,
+        )
 
-	@task
-	def reporting_task(self) -> Task:
-		return Task(
-			config=self.tasks_config['reporting_task'],
-			output_file='report.md'
-		)
+    @agent
+    def analyst(self) -> Agent:
+        # Per-agent LLM override demonstrates LiteLLM provider routing.
+        # Set ANTHROPIC_API_KEY to enable, or swap for `openai/gpt-4o` to fall back.
+        analyst_llm = (
+            LLM(model="anthropic/claude-sonnet-4-5", temperature=0.3)
+            if os.getenv("ANTHROPIC_API_KEY")
+            else None  # falls back to MODEL env var (default openai/gpt-4o-mini)
+        )
+        return Agent(
+            config=self.agents_config["analyst"],  # type: ignore[index]
+            tools=[DataAnalyzerTool()],
+            llm=analyst_llm,
+            verbose=True,
+        )
 
-	@crew
-	def crew(self) -> Crew:
-		"""Creates the CrewaiTemplate crew"""
-		# To learn how to add knowledge sources to your crew, check out the documentation:
-		# https://docs.crewai.com/concepts/knowledge#what-is-knowledge
+    @agent
+    def editor(self) -> Agent:
+        # No tools — the editor's `report_task` writes to disk via `output_file`.
+        # `reasoning=True` adds a planning pass before execution.
+        return Agent(
+            config=self.agents_config["editor"],  # type: ignore[index]
+            reasoning=True,
+            verbose=True,
+        )
 
-		return Crew(
-			agents=self.agents, # Automatically created by the @agent decorator
-			tasks=self.tasks, # Automatically created by the @task decorator
-			process=Process.sequential,
-			verbose=True,
-			# process=Process.hierarchical, # In case you wanna use that instead https://docs.crewai.com/how-to/Hierarchical/
-		)
+    # ── tasks ───────────────────────────────────────────────────────────
+    @task
+    def research_task(self) -> Task:
+        return Task(
+            config=self.tasks_config["research_task"],  # type: ignore[index]
+            async_execution=True,
+        )
+
+    @task
+    def analysis_task(self) -> Task:
+        return Task(
+            config=self.tasks_config["analysis_task"],  # type: ignore[index]
+            context=[self.research_task()],
+            output_pydantic=AnalysisReport,
+        )
+
+    @task
+    def report_task(self) -> Task:
+        return Task(
+            config=self.tasks_config["report_task"],  # type: ignore[index]
+            context=[self.analysis_task()],
+            guardrail=ensure_markdown_report,
+            guardrail_max_retries=2,  # type: ignore[call-arg] — accepted by crewai 1.14 runtime; type stubs lag
+            output_file="report.md",
+            markdown=True,
+        )
+
+    # ── crew ────────────────────────────────────────────────────────────
+    @crew
+    def crew(self) -> Crew:
+        return Crew(
+            agents=self.agents,  # type: ignore[attr-defined] — populated by @CrewBase
+            tasks=self.tasks,    # type: ignore[attr-defined] — populated by @CrewBase
+            process=Process.sequential,
+            # process=Process.hierarchical,  # requires manager_llm; costs +1 LLM call per delegation
+            memory=True,
+            embedder={
+                "provider": "openai",
+                "config": {"model": "text-embedding-3-small"},
+            },
+            knowledge_sources=[
+                TextFileKnowledgeSource(file_paths=["company_brief.txt"]),
+            ],
+            verbose=True,
+        )
+
+
+# ── MCP integration (uncomment to enable) ────────────────────────────────
+# Pull tools from any MCP server (stdio, SSE, or streamable HTTP) and pass
+# them into an agent. Three transports, same adapter:
+#
+# from crewai_tools import MCPServerAdapter
+# from mcp import StdioServerParameters
+#
+# server_params = StdioServerParameters(
+#     command="uvx",
+#     args=["pubmedmcp@0.1.3"],
+#     env={**os.environ},
+# )
+# with MCPServerAdapter(server_params) as mcp_tools:
+#     researcher = Agent(role="…", goal="…", backstory="…", tools=mcp_tools)
+#
+# See https://docs.crewai.com/mcp/overview for SSE / streamable-HTTP examples
+# and the `mcp_server_params = [...]` class attribute for declarative wiring.

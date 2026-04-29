@@ -1,17 +1,36 @@
 research_task:
   description: >
-    Conduct a thorough research about {topic}
-    Make sure you find any interesting and relevant information given
-    the current year is {current_year}.
+    Research {topic} as of {current_year}. Use the web search tool to surface
+    primary sources, recent announcements, and credible analyst commentary.
+    Use the web scraper tool to dig deeper into the most promising 2–3 sources.
+    Capture: notable events, key players, technical milestones, open questions.
   expected_output: >
-    A list with 10 bullet points of the most relevant information about {topic}
+    A raw research dump organised under three headings: 'Primary sources',
+    'Key findings', and 'Open questions'. Include URLs alongside every claim.
   agent: researcher
 
-reporting_task:
+analysis_task:
   description: >
-    Review the context you got and expand each topic into a full section for a report.
-    Make sure the report is detailed and contains any and all relevant information.
+    Read the researcher's notes about {topic}. Extract 3–5 high-confidence
+    findings (each with a confidence score in [0,1] and supporting evidence)
+    and 2–4 actionable recommendations. Where the evidence is thin, lower the
+    confidence — do not inflate it.
   expected_output: >
-    A fully fledged report with the main topics, each with a full section of information.
-    Formatted as markdown without '```'
-  agent: reporting_analyst
+    A structured AnalysisReport with topic, findings (title, evidence,
+    confidence), and recommendations. Output must validate against the
+    AnalysisReport Pydantic schema.
+  agent: analyst
+
+report_task:
+  description: >
+    Turn the analyst's AnalysisReport into a polished markdown brief about
+    {topic}. Open with a 1-sentence thesis, then 'Key findings' (one '##' per
+    finding with the evidence woven in, not bulleted), then 'Recommendations'.
+    No bullet-point dumps, no marketing voice, no '```' code fences around the
+    whole document. The brief must include at least one '# ' top-level heading
+    and run at least 200 characters.
+  expected_output: >
+    A publication-ready markdown report with a top-level heading, a thesis
+    paragraph, '## Key findings' subsections, and a '## Recommendations'
+    section. No code-fence wrapping.
+  agent: editor
