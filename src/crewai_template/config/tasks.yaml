@@ -1,36 +1,56 @@
 research_task:
   description: >
-    Research {topic} as of {current_year}. Use the web search tool to surface
-    primary sources, recent announcements, and credible analyst commentary.
-    Use the web scraper tool to dig deeper into the most promising 2–3 sources.
-    Capture: notable events, key players, technical milestones, open questions.
+    Research {topic} as of {current_year}.
+    1. Use the web search tool to find primary sources.
+    2. Use the web scraper tool on the 2–3 most promising URLs to extract
+       detail beyond the search snippet.
+    3. Capture: notable events, key players, technical milestones, open
+       questions.
+
+    Hard constraints:
+    - Never fabricate URLs. Only cite URLs the tools actually returned.
+    - If a search returns no usable results, write "No primary source
+       found" — do not guess.
+    - When sources disagree, record both positions with their URLs.
   expected_output: >
-    A raw research dump organised under three headings: 'Primary sources',
-    'Key findings', and 'Open questions'. Include URLs alongside every claim.
+    A raw research dump under three headings: 'Primary sources' (with URLs),
+    'Key findings' (each with the supporting URL), 'Open questions'.
   agent: researcher
 
 analysis_task:
   description: >
     Read the researcher's notes about {topic}. Extract 3–5 high-confidence
-    findings (each with a confidence score in [0,1] and supporting evidence)
-    and 2–4 actionable recommendations. Where the evidence is thin, lower the
-    confidence — do not inflate it.
+    findings (each with a confidence score in [0,1] and supporting evidence
+    pulled verbatim from the researcher's output) and 2–4 actionable
+    recommendations.
+
+    Hard constraints:
+    - Confidence must reflect evidence quality. One source = ≤0.6.
+    - If you cannot reach 3 findings at confidence ≥0.5, return fewer
+      findings.
+    - Each recommendation must reference at least one finding.
   expected_output: >
-    A structured AnalysisReport with topic, findings (title, evidence,
-    confidence), and recommendations. Output must validate against the
+    An AnalysisReport with topic, findings (title, evidence, confidence in
+    [0,1]), and recommendations. Output must validate against the
     AnalysisReport Pydantic schema.
   agent: analyst
 
 report_task:
   description: >
     Turn the analyst's AnalysisReport into a polished markdown brief about
-    {topic}. Open with a 1-sentence thesis, then 'Key findings' (one '##' per
-    finding with the evidence woven in, not bulleted), then 'Recommendations'.
-    No bullet-point dumps, no marketing voice, no '```' code fences around the
-    whole document. The brief must include at least one '# ' top-level heading
-    and run at least 200 characters.
+    {topic}.
+
+    Required structure:
+    1. A '# ' top-level title.
+    2. A 1-sentence thesis paragraph below the title.
+    3. A '## Key findings' section with one '##' subsection per finding;
+       weave the evidence into prose, not bullets.
+    4. A '## Recommendations' section at the bottom.
+
+    Hard constraints:
+    - At least one '# ' heading; document length ≥200 characters.
+    - Do not introduce facts that aren't in the AnalysisReport.
+    - Do not wrap the whole document in '```' code fences.
   expected_output: >
-    A publication-ready markdown report with a top-level heading, a thesis
-    paragraph, '## Key findings' subsections, and a '## Recommendations'
-    section. No code-fence wrapping.
+    A publication-ready markdown report matching the structure above.
   agent: editor
