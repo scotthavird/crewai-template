@@ -1,0 +1,33 @@
+Acme Robotics — Company Brief (sample knowledge file)
+
+Mission
+-------
+Acme Robotics builds open-source perception stacks for warehouse automation.
+We focus on edge-deployable computer vision and lightweight SLAM.
+
+Products
+--------
+- AcmeVision: an Apache-2.0 perception SDK targeting Jetson Orin and Coral.
+- AcmeFleet: a hosted fleet-management dashboard for autonomous mobile robots.
+- AcmeSense: an indoor mmWave radar module for mixed lighting conditions.
+
+Audience
+--------
+- Robotics engineers building pick-and-place or AMR fleets.
+- Operations teams running 50+ robots per facility.
+- Open-source contributors interested in low-power vision.
+
+Recent context
+--------------
+- Q1 2026: shipped AcmeVision 3.0 with on-device VLM fallback (~80MB).
+- Q1 2026: AcmeFleet entered closed beta with 4 logistics partners.
+- Q4 2025: open-sourced our depth-completion model (MIT license).
+
+Tone & voice
+------------
+- Direct, technically literate, no buzzwords.
+- We say "ship it" not "leverage synergies."
+- Code samples appear in every blog post.
+
+Use this file as background context for any agent producing customer-facing
+content, technical analysis, or strategic recommendations about Acme Robotics.

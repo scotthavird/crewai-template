@@ -1,259 +1,150 @@
-# CrewAI Template
+# crewAI Template
 
-A production-ready template for building AI crews using CrewAI - the cutting-edge framework for orchestrating collaborative AI agents.
+An opinionated, modern starter for **crewAI 1.14+**. Clone, set an API key,
+run one command — and you get every canonical pattern an engineer needs to
+ship a real multi-agent app.
 
-## 🌟 What Makes This Template Special
+## What you get
 
-- **🤖 Multi-Agent Collaboration**: Watch AI agents work together like a real team
-- **🔧 Production-Ready**: Docker containerization, proper logging, and error handling
-- **📊 Rich Reporting**: Automatic report generation with structured outputs
-- **🛠️ Extensible Tools**: Easy-to-add custom tools for any domain
-- **⚡ Latest CrewAI**: Always updated to the newest CrewAI version (0.134.0+)
-- **🎯 Real Examples**: Working examples that demonstrate powerful AI workflows
+A 3-agent crew, a sibling Flow example, and 3 custom tools — wired together
+with the patterns you'd otherwise spend a week stitching from the docs:
 
-## 🚀 Quick Start
+|  | Pattern | Where |
+|---|---|---|
+| 🧩 | `@CrewBase` + YAML config + `@before_kickoff` / `@after_kickoff` | `src/crewai_template/crew.py` |
+| 🛣️ | **Flow** with `Flow[State]`, `@start`, `@listen`, `@router` | `examples/flow/article_flow.py` |
+| 🛠️ | Custom `BaseTool` subclass **and** `@tool` decorator | `src/crewai_template/tools/` |
+| 🔎 | `SerperDevTool` web search wired into the researcher | `crew.py:researcher` |
+| 📚 | `TextFileKnowledgeSource` from `knowledge/` with explicit embedder | `crew.py:crew` |
+| 🧠 | Crew memory (short-term + long-term + entity + contextual) | `crew.py:crew` |
+| 🎯 | **Per-agent LLM override** — Anthropic on the analyst, OpenAI elsewhere | `crew.py:analyst` |
+| 🧱 | `output_pydantic=AnalysisReport` structured output | `crew.py:analysis_task` |
+| 🛡️ | Function `guardrail=` with retries on the report task | `crew.py:report_task` |
+| ⚡ | `async_execution=True` for intra-crew parallelism | `crew.py:research_task` |
+| 📡 | Console `EventListener` printing task start/complete | `src/crewai_template/observability.py` |
+| 🔌 | Commented MCP block (stdio transport, ready to enable) | `crew.py` (bottom) |
+| ✅ | `pytest` suite (tools, guardrails, gated smoke test) | `tests/` |
 
-1. **Clone and Setup**:
+Everything runs inside Docker so the experience is identical on any machine.
+
+## Quick start
+
 ```bash
 git clone https://github.com/scotthavird/crewai-template
 cd crewai-template
-./setup.sh your_project_name
-```
-
-2. **Configure Environment**:
-```bash
 cp .env.example .env
-# Add your OpenAI API key to .env
-```
-
-3. **Launch Your AI Crew**:
-```bash
-docker compose up --build
-```
-
-Watch your AI agents collaborate in real-time! 🎬
-
-## 💡 Use Case Examples
-
-This template can be adapted for various exciting use cases:
-
-### 🔬 Research & Analysis
-- **Market Research**: Agents gather data, analyze trends, create reports
-- **Academic Research**: Literature review, data analysis, paper writing
-- **Competitive Intelligence**: Monitor competitors, analyze strategies
-
-### 📈 Business Intelligence
-- **Financial Analysis**: Data collection, trend analysis, investment recommendations
-- **Product Development**: Market research, feature analysis, roadmap planning
-- **Risk Assessment**: Data gathering, risk modeling, mitigation strategies
-
-### 🎨 Content Creation
-- **Blog Writing**: Research topics, write articles, optimize for SEO
-- **Social Media**: Content planning, post creation, engagement analysis
-- **Marketing Campaigns**: Strategy development, content creation, performance tracking
-
-### 🔧 Technical Projects
-- **Code Review**: Analyze codebases, identify issues, suggest improvements
-- **Documentation**: Generate technical docs, API references, tutorials
-- **System Analysis**: Architecture review, performance optimization
-
-## 🏗️ Project Structure
-
-```
-src/your_project_name/
-├── main.py                 # 🎯 Entry point & configuration
-├── crew.py                # 🤖 Agent & crew definitions
-├── config/
-│   ├── agents.yaml        # 👥 Agent personalities & roles
-│   └── tasks.yaml         # 📋 Task definitions & workflows
-└── tools/
-    ├── custom_tool.py     # 🛠️ Your custom tools
-    ├── web_scraper.py     # 🌐 Web scraping capabilities
-    ├── data_analyzer.py   # 📊 Data analysis tools
-    └── file_manager.py    # 📁 File operations
-```
-
-## 🎭 Agent Personalities
-
-Our template includes pre-configured agent archetypes:
-
-- **🔍 Senior Researcher**: Deep analysis, fact-checking, comprehensive investigation
-- **📊 Reporting Analyst**: Data synthesis, clear communication, structured reporting
-- **🎨 Creative Writer**: Engaging content, storytelling, audience adaptation
-- **🔧 Technical Expert**: Code analysis, system design, best practices
-
-## 🛠️ Built-in Tools
-
-The template comes with powerful tools out of the box:
-
-- **🌐 Web Research Tool**: Intelligent web scraping and data extraction
-- **📊 Data Analysis Tool**: Statistical analysis and visualization
-- **📁 File Management Tool**: Read, write, and organize files
-- **🔍 Search Tool**: Advanced search capabilities across multiple sources
-- **📈 Reporting Tool**: Generate professional reports in multiple formats
-
-## 🚀 Advanced Features
-
-### 🔄 Workflow Orchestration
-```python
-# Define complex multi-step workflows
-workflow = Crew(
-    agents=[researcher, analyst, writer],
-    tasks=[research_task, analysis_task, writing_task],
-    process=Process.sequential,  # or Process.hierarchical
-    verbose=True
-)
-```
-
-### 📊 Real-time Monitoring
-- Live agent status updates
-- Task progress tracking
-- Performance metrics
-- Error handling and recovery
-
-### 🎯 Customizable Outputs
-- Markdown reports
-- JSON data exports
-- PDF generation
-- Interactive dashboards
-
-## 🔧 Configuration Examples
-
-### Quick Research Project
-```yaml
-# agents.yaml
-researcher:
-  role: "AI Research Specialist"
-  goal: "Discover cutting-edge developments in {topic}"
-  backstory: "Expert in finding and analyzing the latest innovations"
-```
-
-### Business Analysis Crew
-```yaml
-# tasks.yaml
-market_analysis:
-  description: "Analyze market trends for {product}"
-  expected_output: "Comprehensive market analysis with actionable insights"
-  agent: market_analyst
-```
-
-## 🎬 Live Demo
-
-Want to see it in action? Check out these example runs:
-
-1. **Interactive Demo**: `docker compose run --rm crew python demo.py`
-2. **Business Analysis**: `docker compose run --rm crew python examples/business_analysis_example.py`
-3. **Default Research**: `docker compose up` (OpenCV research)
-
-## 🚀 Getting Started Examples
-
-### Example 1: Market Research
-```bash
-docker compose run --rm crew python -c "
-from src.crewai_template.crew import CrewaiTemplate
-crew = CrewaiTemplate().crew()
-result = crew.kickoff(inputs={
-    'topic': 'Electric Vehicle Market 2025',
-    'industry': 'Automotive',
-    'region': 'North America'
-})
-"
-```
-
-### Example 2: Technical Analysis
-```bash
-docker compose run --rm crew python -c "
-from src.crewai_template.crew import CrewaiTemplate
-crew = CrewaiTemplate().crew()
-result = crew.kickoff(inputs={
-    'topic': 'Kubernetes Security Best Practices',
-    'depth': 'comprehensive',
-    'audience': 'DevOps Engineers'
-})
-"
-```
-
-### Example 3: Content Strategy
-```bash
-docker compose run --rm crew python -c "
-from src.crewai_template.crew import CrewaiTemplate
-crew = CrewaiTemplate().crew()
-result = crew.kickoff(inputs={
-    'topic': 'AI in Healthcare',
-    'format': 'blog series',
-    'target_audience': 'healthcare professionals'
-})
-"
-```
-
-## 🎯 Development Commands
-
-All development happens inside Docker containers:
-
-```bash
-# Interactive demo with menu
-docker compose run --rm crew python demo.py
-
-# Run specific examples
-docker compose run --rm crew python examples/business_analysis_example.py
-
-# Interactive Python shell
-docker compose run --rm crew python
-
-# Shell access for debugging
-docker compose run --rm crew bash
-
-# Check installed packages
-docker compose run --rm crew pip list
-
-# Run tests
-docker compose run --rm crew python -m pytest
-```
-
-## 🔧 Adding Dependencies
-
-1. **Add to pyproject.toml**:
-```toml
-dependencies = [
-    "crewai[tools]>=0.134.0,<1.0.0",
-    "requests>=2.31.0",
-    "your-new-package>=1.0.0",
-]
-```
-
-2. **Rebuild container**:
-```bash
+# edit .env — at minimum set OPENAI_API_KEY
 docker compose build
+docker compose run --rm crew crewai run
 ```
 
-3. **Test new dependency**:
+The first kickoff researches "OpenCV" by default. Pass a topic:
+
 ```bash
-docker compose run --rm crew python -c "import your_new_package; print('Success!')"
+docker compose run --rm crew crewai run -- "Edge AI in 2026"
 ```
 
-## 🎯 Next Steps
+When it finishes you'll have a `report.md` written by the editor agent, a
+`db/` directory holding the long-term memory store, and (if you set
+`SERPER_API_KEY`) genuine web-sourced findings.
 
-1. **Customize Your Agents**: Edit `config/agents.yaml` to define unique personalities
-2. **Design Your Workflow**: Modify `config/tasks.yaml` for your specific use case
-3. **Add Custom Tools**: Extend functionality in the `tools/` directory
-4. **Scale Your Crew**: Add more agents for complex workflows
-5. **Deploy to Production**: Use the included Docker setup for deployment
+## The crew
 
-## 🤝 Contributing
+```
+   research_task            analysis_task                report_task
+  ┌────────────┐  context   ┌────────────┐   context    ┌────────────┐
+  │ researcher │ ─────────▶ │  analyst   │ ───────────▶ │   editor   │
+  └────────────┘            └────────────┘              └────────────┘
+   SerperDevTool            DataAnalyzer (BaseTool)      reasoning=True
+   WebScraperTool           Anthropic Sonnet 4.5         output_file
+   word_count (@tool)       output_pydantic=Report       guardrail + retries
+   async_execution=True
+```
 
-We love contributions! Whether it's:
-- 🐛 Bug fixes
-- ✨ New features
-- 📚 Documentation improvements
-- 🎯 New use case examples
+- **researcher** — uses `SerperDevTool`, the custom `WebScraperTool`, and the
+  `@tool`-decorated `word_count`. Runs async so the crew can fan-out.
+- **analyst** — runs on Anthropic Claude Sonnet 4.5 if `ANTHROPIC_API_KEY` is
+  set, otherwise falls back to the default OpenAI model. Outputs a
+  Pydantic-validated `AnalysisReport`.
+- **editor** — runs with `reasoning=True` (a planning pass before execution),
+  writes the final markdown to `report.md`, gated by a `guardrail=` that
+  rejects too-short or unstructured outputs and retries up to 2×.
 
-## 📚 Learn More
+The crew has `memory=True` and a `TextFileKnowledgeSource` pointing at
+`knowledge/company_brief.txt` — drop your own docs in there.
 
-- [CrewAI Documentation](https://docs.crewai.com)
-- [Agent Configuration Guide](https://docs.crewai.com/concepts/agents)
-- [Task Orchestration](https://docs.crewai.com/concepts/tasks)
-- [Custom Tools Development](https://docs.crewai.com/concepts/tools)
+## The flow
+
+When a single Crew isn't enough, reach for a **Flow**: deterministic
+event-driven topology with structured Pydantic state. The official guidance
+is *"start with a Flow, use a Crew within a Flow step when a specific
+complex task requires autonomous agents."*
+
+`examples/flow/article_flow.py` shows exactly that — a `Flow[ArticleState]`
+that runs the crew, gates on output length, then branches:
+
+```bash
+docker compose run --rm crew python examples/flow/article_flow.py
+```
+
+## CLI cheatsheet
+
+All commands run **inside the container** (`docker compose run --rm crew …`):
+
+| Command | What it does |
+|---|---|
+| `crewai install` | `uv sync` the project's deps |
+| `crewai run` | Auto-detects crew vs flow from `pyproject.toml` and runs |
+| `crewai test -n 3 -m gpt-4o-mini` | LLM-judge eval; prints per-task & avg scores |
+| `crewai train -n 5 -f trained.pkl` | HITL training loop |
+| `crewai replay -t <task_id>` | Re-run from a stored task |
+| `crewai log-tasks-outputs` | Dump last kickoff's task outputs (for replay) |
+| `crewai reset-memories --all` | Wipe short/long/entity memory |
+| `crewai chat` | Interactive REPL with the crew |
+| `crewai flow plot` | Render the flow as an HTML graph |
+
+## Tests
+
+```bash
+docker compose run --rm crew pytest                    # tool + guardrail unit tests
+RUN_INTEGRATION=1 docker compose run --rm crew pytest  # also hit a real LLM
+```
+
+## Customising
+
+Forking this for a new project? Run:
+
+```bash
+./setup.sh my_project_name
+```
+
+It renames the package, updates imports, and prompts for author / description.
+Then customise:
+
+- **Agents & roles** — `src/crewai_template/config/agents.yaml`
+- **Tasks & flow** — `src/crewai_template/config/tasks.yaml` (and `crew.py` for `context=`, `async_execution=`)
+- **Tools** — drop new `BaseTool` subclasses in `src/crewai_template/tools/` and add to `__init__.py`
+- **Knowledge** — drop docs in `knowledge/`, add a `*KnowledgeSource` in `crew.py`
+
+## Production add-ons
+
+These are commented out in the template — flip them on when you need them:
+
+- **MCP servers** — `MCPServerAdapter` block in `crew.py` (stdio / SSE / streamable-HTTP)
+- **OpenTelemetry** — uncomment `OTEL_*` in `.env.example`, `pip install openinference-instrumentation-crewai`, register in `observability.py`
+- **Phoenix / Langfuse / AgentOps** — env vars listed in `.env.example`
+- **External memory** — `Mem0` / `Qdrant Edge` via `crewai.memory.external.external_memory.ExternalMemory`
+- **Hierarchical process** — set `process=Process.hierarchical` and `manager_llm=` in `crew.py`
+- **`human_input=True`** — add to any `Task` to pause for stdin feedback (don't enable in CI)
+- **Code execution** — `Agent(allow_code_execution=True)` (pulls Docker-in-Docker; off by default)
+
+## Learning path
+
+1. **Run it.** `crewai run` and read the console output — see how the listener prints task transitions.
+2. **Open `crew.py`.** Every showcased pattern is one click away with a comment explaining why.
+3. **Open `examples/flow/article_flow.py`.** This is what production crewAI looks like.
+4. **Pin docs:** [Crews](https://docs.crewai.com/concepts/crews) · [Flows](https://docs.crewai.com/concepts/flows) · [Knowledge](https://docs.crewai.com/concepts/knowledge) · [Memory](https://docs.crewai.com/concepts/memory) · [Tools](https://docs.crewai.com/concepts/tools) · [MCP](https://docs.crewai.com/mcp/overview) · [CLI](https://docs.crewai.com/concepts/cli)
 
 ---
 
-**Ready to build the future with AI agents?** 🚀 Start your journey today!
+**License:** MIT (see `LICENSE`).

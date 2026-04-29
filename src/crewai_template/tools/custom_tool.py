@@ -1,19 +1,34 @@
-from crewai.tools import BaseTool
-from typing import Type
-from pydantic import BaseModel, Field
+"""Lightweight `@tool` decorator examples.
+
+Two custom-tool patterns ship with this template:
+
+1. **`@tool` decorator** (this file) — tiny, function-style. Pick this when
+   the tool is a one-liner with no shared state.
+2. **`BaseTool` subclass** — see `web_scraper.py` and `data_analyzer.py`.
+   Pick this when you want a Pydantic `args_schema`, instance state, or
+   reusable helper methods.
+
+The plain `_word_count` / `_character_count` callables are kept exported so
+unit tests can call them directly without the decorator wrapper in the way.
+"""
+from crewai.tools import tool
 
 
-class MyCustomToolInput(BaseModel):
-    """Input schema for MyCustomTool."""
-    argument: str = Field(..., description="Description of the argument.")
+def _word_count(text: str) -> int:
+    return len(text.split())
 
-class MyCustomTool(BaseTool):
-    name: str = "Name of my tool"
-    description: str = (
-        "Clear description for what this tool is useful for, your agent will need this information to use it."
-    )
-    args_schema: Type[BaseModel] = MyCustomToolInput
 
-    def _run(self, argument: str) -> str:
-        # Implementation goes here
-        return "this is an example of a tool output, ignore it and move along."
+def _character_count(text: str) -> int:
+    return len(text)
+
+
+@tool("Word Count")
+def word_count(text: str) -> int:
+    """Count whitespace-separated words in `text`."""
+    return _word_count(text)
+
+
+@tool("Character Count")
+def character_count(text: str) -> int:
+    """Count characters (including whitespace) in `text`."""
+    return _character_count(text)

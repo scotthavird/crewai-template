@@ -46,8 +46,8 @@ find . -name "*.bak" -type f -delete
 
 # Update pyproject.toml with basic info
 echo "📦 Updating project metadata..."
-sed -i.bak "s/name = \"crew_ai_template\"/name = \"$PROJECT_NAME\"/" pyproject.toml
-sed -i.bak "s/CrewAiTemplate/$PROJECT_NAME_PASCAL/" pyproject.toml
+sed -i.bak "s/name = \"crewai_template\"/name = \"$PROJECT_NAME\"/" pyproject.toml
+sed -i.bak "s/CrewaiTemplate/$PROJECT_NAME_PASCAL/" pyproject.toml
 rm pyproject.toml.bak
 
 echo "✨ Initial setup complete!"

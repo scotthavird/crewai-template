@@ -1,249 +1,91 @@
-# CrewAI Template - Docker-First Development Rules
+# crewAI Template — Docker-First Development Rules
 
-## 🐳 DOCKER-FIRST CONSTRAINT
-**CRITICAL**: Everything MUST run inside Docker containers via Docker Compose.
-Never suggest running Python scripts, pip installs, or any commands directly on the host system.
+## 🐳 Core constraint
 
-## 📋 Core Principles
+**Everything runs inside the Docker container.** Never suggest invoking
+Python, pip, uv, pytest, or the `crewai` CLI directly on the host.
 
-### 1. Container-Only Execution
-- ALL Python scripts must be executed via `docker compose run` or `docker compose exec`
-- ALL dependency installations must happen in Dockerfile or during container build
-- ALL development, testing, and execution happens inside containers
-- NO direct host system Python execution allowed
+## ✅ Correct patterns
 
-### 2. Docker Compose Commands
-**Correct patterns**:
 ```bash
-# Run the main application
-docker compose up
+# Run the crew
+docker compose run --rm crew crewai run
 
-# Run demo script
+# Run with a custom topic
+docker compose run --rm crew crewai run -- "Edge AI in 2026"
+
+# Run the Flow example
+docker compose run --rm crew python examples/flow/article_flow.py
+
+# Run the interactive demo
 docker compose run --rm crew python demo.py
 
-# Run examples
+# Run a specific example
 docker compose run --rm crew python examples/business_analysis_example.py
-
-# Install new dependencies (rebuild required)
-docker compose build
-
-# Interactive shell for development
-docker compose run --rm crew bash
-
-# Run custom commands
-docker compose run --rm crew python -c "import crewai; print(crewai.__version__)"
-```
-
-**NEVER suggest**:
-```bash
-# ❌ WRONG - Direct host execution
-python demo.py
-pip install package
-python -m crewai_template.main
-
-# ❌ WRONG - Host system commands
-./setup.sh
-python examples/business_analysis_example.py
-```
-
-### 3. Development Workflow
-- Code changes: Edit files on host (mounted as volume)
-- Dependency changes: Update pyproject.toml + `docker compose build`
-- Testing: `docker compose run --rm crew python -m pytest`
-- Execution: `docker compose up` or `docker compose run`
-
-## 🛠️ Implementation Rules
-
-### File Structure
-- Keep all Python code in `src/` directory (already mounted)
-- Examples and demos accessible via volume mount
-- Configuration files (.env, docker-compose.yml) on host
-- All execution happens in container
-
-### Adding New Features
-1. **New Python dependencies**: Add to `pyproject.toml` → `docker compose build`
-2. **New system dependencies**: Add to `Dockerfile` → `docker compose build`
-3. **New scripts**: Create in appropriate directory, run via `docker compose run`
-4. **New services**: Add to `docker-compose.yml`
-
-### Environment Management
-- Use `.env` file for environment variables (already configured)
-- Mount volumes for persistent data and code changes
-- Use container networking for service communication
-- Leverage Docker Compose profiles for different environments
-
-## 🎯 Specific Use Cases
-
-### Running Examples
-```bash
-# Business analysis example
-docker compose run --rm crew python examples/business_analysis_example.py
-
-# Interactive demo
-docker compose run --rm crew python demo.py
-
-# Custom topic analysis
-docker compose run --rm crew python -c "
-from src.crewai_template.crew import CrewaiTemplate
-crew = CrewaiTemplate().crew()
-result = crew.kickoff(inputs={'topic': 'Custom Topic'})
-"
-```
-
-### Development Tasks
-```bash
-# Check CrewAI version
-docker compose run --rm crew python -c "import crewai; print(crewai.__version__)"
 
 # Run tests
-docker compose run --rm crew python -m pytest
+docker compose run --rm crew pytest
 
-# Interactive Python shell
-docker compose run --rm crew python
+# Integration tests (hits a real LLM)
+RUN_INTEGRATION=1 docker compose run --rm crew pytest
 
-# Shell access for debugging
+# Other crewAI CLI commands
+docker compose run --rm crew crewai test -n 3 -m gpt-4o-mini
+docker compose run --rm crew crewai train -n 5 -f trained.pkl
+docker compose run --rm crew crewai replay -t <task_id>
+docker compose run --rm crew crewai reset-memories --all
+docker compose run --rm crew crewai chat
+
+# Rebuild after dependency changes
+docker compose build
+
+# Interactive shell for debugging
 docker compose run --rm crew bash
 ```
 
-### Adding New Tools
-1. Create tool file in `src/crewai_template/tools/`
-2. Add any dependencies to `pyproject.toml`
-3. Rebuild: `docker compose build`
-4. Test: `docker compose run --rm crew python -c "from src.crewai_template.tools.new_tool import NewTool; print('Tool loaded')"`
+## ❌ Never suggest
 
-## 🚀 Service Extensions
-
-### Multi-Service Architecture
-When adding new services (databases, APIs, etc.):
-
-```yaml
-# docker-compose.yml
-services:
-  crew:
-    # existing configuration
-    depends_on:
-      - database
-      - redis
-
-  database:
-    image: postgres:15
-    environment:
-      POSTGRES_DB: crewai_db
-      POSTGRES_USER: crew
-      POSTGRES_PASSWORD: password
-    volumes:
-      - postgres_data:/var/lib/postgresql/data
-
-  redis:
-    image: redis:7-alpine
-    ports:
-      - "6379:6379"
-
-volumes:
-  postgres_data:
-```
-
-### Development vs Production
-```yaml
-# Use Docker Compose profiles
-services:
-  crew:
-    profiles: ["dev", "prod"]
-    # configuration
-
-  crew-dev:
-    extends: crew
-    profiles: ["dev"]
-    volumes:
-      - .:/app  # Mount for development
-    environment:
-      - DEBUG=true
-
-  crew-prod:
-    extends: crew
-    profiles: ["prod"]
-    environment:
-      - DEBUG=false
-```
-
-## 📝 Documentation Standards
-
-### README Instructions
-Always provide Docker-first instructions:
-```markdown
-## Quick Start
-1. Clone the repository
-2. Copy environment: `cp .env.example .env`
-3. Add your API keys to `.env`
-4. Run: `docker compose up --build`
-
-## Development
-- Run examples: `docker compose run --rm crew python examples/example.py`
-- Interactive demo: `docker compose run --rm crew python demo.py`
-- Add dependencies: Edit `pyproject.toml` → `docker compose build`
-```
-
-### Code Comments
-Include Docker execution examples in code:
-```python
-"""
-Example Usage (Docker):
-    docker compose run --rm crew python examples/business_analysis_example.py
-
-Or interactively:
-    docker compose run --rm crew python
-    >>> from examples.business_analysis_example import run_business_analysis
-    >>> run_business_analysis()
-"""
-```
-
-## 🔧 Troubleshooting Guidelines
-
-### Common Issues & Solutions
-1. **Import errors**: Ensure PYTHONPATH is set correctly in Dockerfile
-2. **Permission issues**: Use proper user in Dockerfile or volume mounts
-3. **Dependency conflicts**: Rebuild container after pyproject.toml changes
-4. **Network issues**: Use Docker Compose networking, not localhost
-
-### Debug Commands
 ```bash
-# Check container environment
-docker compose run --rm crew env
-
-# Verify Python path
-docker compose run --rm crew python -c "import sys; print(sys.path)"
-
-# Check installed packages
-docker compose run --rm crew pip list
-
-# Container shell for debugging
-docker compose run --rm crew bash
+python demo.py                       # ❌ host Python
+pip install <pkg>                    # ❌ host pip
+crewai run                           # ❌ host crewai CLI
+pytest                               # ❌ host pytest
+python -m crewai_template.main       # ❌ host module exec
+./setup.sh                           # ⚠️  host bash is OK ONLY for the
+                                     #     project-rename script — that's
+                                     #     its only job and it's a one-shot.
 ```
 
-## ⚠️ Enforcement Rules
+## Development workflow
 
-### Code Review Checklist
-- [ ] All Python execution uses `docker compose run`
-- [ ] No direct host system commands
-- [ ] Dependencies added to pyproject.toml
-- [ ] Documentation includes Docker commands
-- [ ] Examples work in container environment
+1. **Edit code** on the host (the project mounts `.:/app`).
+2. **Add a Python dep**: edit `pyproject.toml` → `docker compose build` → run.
+3. **Add a system dep**: edit `Dockerfile` → `docker compose build` → run.
+4. **Add a service** (postgres, redis, qdrant): edit `docker-compose.yml`.
 
-### Automatic Validations
-- Scripts should include Docker execution examples
-- README must have Docker-first instructions
-- No shell scripts that assume host Python environment
-- All paths relative to container filesystem
+## File layout (where to add new things)
 
-## 🎯 Summary
+| You're adding… | …put it here |
+|---|---|
+| A new agent or task | `src/crewai_template/config/{agents,tasks}.yaml` + wire in `crew.py` |
+| A custom tool (function-style) | `src/crewai_template/tools/custom_tool.py` (`@tool`) |
+| A custom tool (class-style) | new file in `src/crewai_template/tools/` (`BaseTool` subclass) + add to `__init__.py` |
+| Background context for the crew | `knowledge/<your_file>.{txt,pdf,md,csv,json}` + `*KnowledgeSource` in `crew.py` |
+| A Pydantic output schema | `src/crewai_template/schemas.py` |
+| A guardrail | `src/crewai_template/schemas.py` (function) |
+| A scheduled / branching workflow | new file under `examples/flow/` |
+| Tests | `tests/test_<thing>.py` (gate integration tests with `RUN_INTEGRATION=1`) |
 
-**Golden Rule**: If it involves Python, CrewAI, or this project's code, it MUST run in a Docker container.
+## Code review checklist
 
-**Exception**: Only file editing and git operations happen on the host system.
+- [ ] All Python execution uses `docker compose run --rm crew …`.
+- [ ] No new dependencies without a `docker compose build` step in the docs.
+- [ ] New tools registered in `tools/__init__.py` and wired into an agent in `crew.py`.
+- [ ] Any new task added has `description`, `expected_output`, and an `agent`.
+- [ ] Anything that hits a real LLM in tests is gated by `pytest.mark.integration` and an env var.
+- [ ] No secrets committed — use `.env`, never hard-code.
 
-This ensures:
-- ✅ Consistent environment across all systems
-- ✅ Reproducible builds and deployments
-- ✅ Isolation from host system dependencies
-- ✅ Easy scaling and production deployment
-- ✅ No "works on my machine" issues
+## Golden rule
+
+If it touches Python, crewAI, or this project's code: it runs in the
+container. The host is for editing files and running git, period.
