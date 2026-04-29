@@ -3,7 +3,7 @@
 Showcased patterns (top-to-bottom):
 - @CrewBase + YAML config
 - @before_kickoff input transformation
-- Per-agent LLM override (Anthropic on the analyst)
+- Per-agent LLM right-sizing (Gemini Flash / Sonnet 4.6 / Opus 4.7)
 - BaseTool subclass (WebScraperTool, DataAnalyzerTool) and @tool decorator (word_count)
 - SerperDevTool web search wired into the researcher
 - async_execution=True on the research task (intra-crew parallelism)
@@ -12,6 +12,12 @@ Showcased patterns (top-to-bottom):
 - Crew-level memory + knowledge_sources with explicit embedder
 - Commented MCP block at the bottom
 """
+# crewai's @CrewBase rewrites `agents_config` / `tasks_config` from str → dict
+# at runtime, and Agent(config=…) accepts the loaded dict. Pyright's stubs
+# don't model that rewrite, so we suppress the resulting false positives.
+# pyright: reportCallIssue=none
+# pyright: reportArgumentType=none
+# pyright: reportAttributeAccessIssue=none
 from __future__ import annotations
 
 import os
@@ -51,22 +57,39 @@ class CrewaiTemplate:
         return output
 
     # ── agents ──────────────────────────────────────────────────────────
+    # Each agent is right-sized to its workload. If the relevant API key
+    # isn't set, the agent falls back to the env-default `MODEL` so the
+    # template still runs with only `OPENAI_API_KEY`.
+
     @agent
     def researcher(self) -> Agent:
+        # Cheap + fast: the researcher does many tool calls. Tool-calling
+        # latency dominates token cost here, so a lightweight model wins.
+        researcher_llm = (
+            LLM(model="gemini/gemini-2.5-flash", temperature=0.4)
+            if os.getenv("GEMINI_API_KEY")
+            else None  # falls back to env MODEL (default openai/gpt-4.1-mini)
+        )
         return Agent(
             config=self.agents_config["researcher"],  # type: ignore[index]
             tools=[SerperDevTool(), WebScraperTool(), word_count],
+            llm=researcher_llm,
             verbose=True,
         )
 
     @agent
     def analyst(self) -> Agent:
-        # Per-agent LLM override demonstrates LiteLLM provider routing.
-        # Set ANTHROPIC_API_KEY to enable, or swap for `openai/gpt-4o` to fall back.
+        # Quality + structured output: the analyst converts messy notes into
+        # a Pydantic AnalysisReport. Sonnet 4.6 leads on schema-fidelity;
+        # `reasoning_effort="medium"` gives the analytical pass more headroom.
         analyst_llm = (
-            LLM(model="anthropic/claude-sonnet-4-5", temperature=0.3)
+            LLM(
+                model="anthropic/claude-sonnet-4-6",
+                temperature=0.3,
+                reasoning_effort="medium",
+            )
             if os.getenv("ANTHROPIC_API_KEY")
-            else None  # falls back to MODEL env var (default openai/gpt-4o-mini)
+            else None  # falls back to env MODEL
         )
         return Agent(
             config=self.agents_config["analyst"],  # type: ignore[index]
@@ -77,10 +100,17 @@ class CrewaiTemplate:
 
     @agent
     def editor(self) -> Agent:
-        # No tools — the editor's `report_task` writes to disk via `output_file`.
-        # `reasoning=True` adds a planning pass before execution.
+        # Long-form writing + 1M context: the editor consumes the full
+        # research dump + analyst report. Opus 4.7's 1M context handles
+        # this without truncation. `reasoning=True` adds a planning pass.
+        editor_llm = (
+            LLM(model="anthropic/claude-opus-4-7", temperature=0.5)
+            if os.getenv("ANTHROPIC_API_KEY")
+            else None  # falls back to env MODEL
+        )
         return Agent(
             config=self.agents_config["editor"],  # type: ignore[index]
+            llm=editor_llm,
             reasoning=True,
             verbose=True,
         )
@@ -116,8 +146,8 @@ class CrewaiTemplate:
     @crew
     def crew(self) -> Crew:
         return Crew(
-            agents=self.agents,  # type: ignore[attr-defined] — populated by @CrewBase
-            tasks=self.tasks,    # type: ignore[attr-defined] — populated by @CrewBase
+            agents=self.agents,  # pyright: ignore[reportAttributeAccessIssue] — populated by @CrewBase
+            tasks=self.tasks,    # pyright: ignore[reportAttributeAccessIssue] — populated by @CrewBase
             process=Process.sequential,
             # process=Process.hierarchical,  # requires manager_llm; costs +1 LLM call per delegation
             memory=True,

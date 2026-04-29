@@ -17,7 +17,7 @@ with the patterns you'd otherwise spend a week stitching from the docs:
 | 🔎 | `SerperDevTool` web search wired into the researcher | `crew.py:researcher` |
 | 📚 | `TextFileKnowledgeSource` from `knowledge/` with explicit embedder | `crew.py:crew` |
 | 🧠 | Crew memory (short-term + long-term + entity + contextual) | `crew.py:crew` |
-| 🎯 | **Per-agent LLM override** — Anthropic on the analyst, OpenAI elsewhere | `crew.py:analyst` |
+| 🎯 | **Per-agent LLM right-sizing** — Gemini Flash / Sonnet 4.6 / Opus 4.7 | `crew.py:agents` |
 | 🧱 | `output_pydantic=AnalysisReport` structured output | `crew.py:analysis_task` |
 | 🛡️ | Function `guardrail=` with retries on the report task | `crew.py:report_task` |
 | ⚡ | `async_execution=True` for intra-crew parallelism | `crew.py:research_task` |
@@ -55,20 +55,28 @@ When it finishes you'll have a `report.md` written by the editor agent, a
   ┌────────────┐  context   ┌────────────┐   context    ┌────────────┐
   │ researcher │ ─────────▶ │  analyst   │ ───────────▶ │   editor   │
   └────────────┘            └────────────┘              └────────────┘
-   SerperDevTool            DataAnalyzer (BaseTool)      reasoning=True
-   WebScraperTool           Anthropic Sonnet 4.5         output_file
-   word_count (@tool)       output_pydantic=Report       guardrail + retries
-   async_execution=True
+   gemini-2.5-flash         claude-sonnet-4-6            claude-opus-4-7
+   SerperDev + scraper      DataAnalyzer (BaseTool)      reasoning=True
+   word_count (@tool)       reasoning_effort=medium      output_file
+   async_execution=True     output_pydantic=Report       guardrail + retries
 ```
 
-- **researcher** — uses `SerperDevTool`, the custom `WebScraperTool`, and the
-  `@tool`-decorated `word_count`. Runs async so the crew can fan-out.
-- **analyst** — runs on Anthropic Claude Sonnet 4.5 if `ANTHROPIC_API_KEY` is
-  set, otherwise falls back to the default OpenAI model. Outputs a
-  Pydantic-validated `AnalysisReport`.
-- **editor** — runs with `reasoning=True` (a planning pass before execution),
-  writes the final markdown to `report.md`, gated by a `guardrail=` that
-  rejects too-short or unstructured outputs and retries up to 2×.
+Each agent's model is **right-sized to its workload**:
+
+- **researcher** — `gemini/gemini-2.5-flash` (cheap, fast, tool-call-heavy).
+  Falls back to the env `MODEL` if `GEMINI_API_KEY` is unset.
+- **analyst** — `anthropic/claude-sonnet-4-6` with `reasoning_effort="medium"`,
+  best-in-class for the `output_pydantic=AnalysisReport` schema-fidelity work.
+  Falls back to the env `MODEL` if `ANTHROPIC_API_KEY` is unset.
+- **editor** — `anthropic/claude-opus-4-7` (1M context handles the full
+  upstream research dump without truncation), `reasoning=True` for a planning
+  pass, and a `guardrail=` that retries up to 2× on too-short/unstructured
+  output. Falls back to the env `MODEL` if `ANTHROPIC_API_KEY` is unset.
+
+The default `MODEL=openai/gpt-4.1-mini` is the cheap-fast fallback that
+keeps the template runnable with only `OPENAI_API_KEY`. Setting
+`ANTHROPIC_API_KEY` is the highest-impact upgrade — it activates two of
+three agents.
 
 The crew has `memory=True` and a `TextFileKnowledgeSource` pointing at
 `knowledge/company_brief.txt` — drop your own docs in there.
